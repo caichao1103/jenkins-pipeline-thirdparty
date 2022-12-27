@@ -11,9 +11,9 @@ pipeline {
     }
     parameters {
         string(name: 'PROTOBUF_UE4_VERSION',
-            defaultValue: '3.9.2')
+            defaultValue: '3.19.4')
         string(name: 'IOS_DEPLOYMENT_TARGET',
-            defaultValue: '11.0')
+            defaultValue: '12.0')
     }
     environment {
         PROTOBUF_UE4_VERSION             = "${params.PROTOBUF_UE4_VERSION}"
@@ -36,7 +36,7 @@ pipeline {
         
         stage('Build') {
             steps {
-                withCMake('3.12.2') {
+                withCMake('3.25.1') {
                     sh './Build_IOS.sh'
                 }
             }
