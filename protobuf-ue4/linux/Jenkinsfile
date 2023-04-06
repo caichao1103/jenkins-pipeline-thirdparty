@@ -18,7 +18,7 @@ pipeline {
         string(name: 'MYLDFLAGS', defaultValue: '')
         string(name: 'ENGINE_BRANCH', defaultValue: 'release')
         booleanParam(name: 'CLEAN_WS',
-            defaultValue: true,
+            defaultValue: false,
             description: 'When checked, call function cleanWs.')
     }
     environment {
@@ -61,7 +61,7 @@ pipeline {
                                 extensions: [[$class: 'CloneOption', timeout: 120], [$class: 'AuthorInChangelog']],
                                 userRemoteConfigs: [[ url: 'https://github-mirror.shiyou.kingsoft.com/ffas-ue/UnrealEngine.git']]
                             ], poll: false, changelog: true)
-                                                        
+
                             ueBuild.ueSetup(ENGINE_SYS, '')
                         }
                     }
