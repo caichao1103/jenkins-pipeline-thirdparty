@@ -85,4 +85,9 @@ pipeline {
             }
         }
     }
+    post {
+        failure {
+            archiveArtifacts artifacts: "protobuf-3.19.4/config.log", allowEmptyArchive: true
+        }
+    }
 }
