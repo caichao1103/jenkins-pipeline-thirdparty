@@ -88,7 +88,7 @@ pipeline {
     }
     post {
         failure {
-            archiveArtifacts artifacts: "${PROTOBUF_UE4_PREFIX}/protobuf-${params.PROTOBUF_UE4_VERSION}/config.log", allowEmptyArchive: true
+            archiveArtifacts artifacts: "protobuf-ue4/linux/protobuf-${params.PROTOBUF_UE4_VERSION}/config.log", allowEmptyArchive: true
         }
     }
 }
