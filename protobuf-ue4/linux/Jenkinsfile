@@ -61,7 +61,7 @@ pipeline {
                                 extensions: [[$class: 'CloneOption', timeout: 120], [$class: 'AuthorInChangelog']],
                                 userRemoteConfigs: [[ url: 'https://github-mirror.shiyou.kingsoft.com/ffas-ue/UnrealEngine.git']]
                             ], poll: false, changelog: true)                            
-                            buildEngine.ueSetup(ENGINE_SYS, '')
+                            ueBuild.ueSetup(ENGINE_SYS, '')
                         }
                     }
                 }
