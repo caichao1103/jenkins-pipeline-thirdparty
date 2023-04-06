@@ -54,7 +54,13 @@ pipeline {
                 script {
                     def ue4CleanBuild = !fileExists(ENGINE_LOCAL_DIR)
                     if (ue4CleanBuild) {
-                        ueBuild.ueCheckout(ENGINE_LOCAL_DIR, ENGINE_SYS, params.ENGINE_BRANCH)
+                        checkout(scm: [
+                            $class: 'GitSCM',
+                            branches: [[name: params.ENGINE_BRANCH]],
+                            extensions: [[$class: 'CloneOption', timeout: 120], [$class: 'AuthorInChangelog']],
+                            userRemoteConfigs: [[ url: 'https://github-mirror.shiyou.kingsoft.com/ffas-ue/UnrealEngine.git']]
+                        ], poll: false, changelog: true)
+                        
                         dir(ENGINE_LOCAL_DIR) {
                             buildEngine.ueSetup(ENGINE_SYS, '')
                         }
