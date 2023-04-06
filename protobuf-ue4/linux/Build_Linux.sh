@@ -103,7 +103,7 @@ export CXXFLAGS="-fPIC                    \
 # (2) for libz.a
 # (3) -L for lib*.a
 # (4) -B This option specifies where to find the executables, libraries, include files, and data files of the compiler itself.
-export LDFLAGS="-L${UE4_LIBCXX_ROOT}/lib/Linux/x86_64-unknown-linux-gnu \
+export LDFLAGS="-L${UE4_ZLIB_DIR}/lib/Unix/x86_64-unknown-linux-gnu \
   -L${UE4_ZLIB_DIR}                                                     \
   -L${UE4_CLANG_ROOT}/usr/lib64                                         \
   -B${UE4_CLANG_ROOT}/usr/lib64                                         \
