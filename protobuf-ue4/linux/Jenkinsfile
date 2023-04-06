@@ -1,41 +1,19 @@
 #!/usr/bin/env groovy
 
-def gitRepo = 'https://github.com/kingsoftgames/protobuf-ue4.git'
+import com.kingsoft.shiyou.UnrealEngineBuild
 
-ENGINE_LOCAL_DIR = 'UnrealEngine'
-ENGINE_SYS = 'Linux'
+ueBuild = new UnrealEngineBuild(this)
 
-UE4_TOOL_CHAIN_LIST = [
-    [
-        UE4_VERSION            : '4.21',
-        UE4_CLANG_VERSION      : 'v12_clang-6.0.1-centos7',
-        UE4_ZLIB_VERSION       : 'v1.2.8'
-    ],
-    [
-        UE4_VERSION            : '4.25',
-        UE4_CLANG_VERSION      : 'v16_clang-9.0.1-centos7',
-        UE4_ZLIB_VERSION       : 'v1.2.8'
-    ],
-]
-
-def getToolChain(UE4Version) {
-    for (toolChain in UE4_TOOL_CHAIN_LIST) {
-        if (UE4Version.startsWith("${toolChain.UE4_VERSION}.")) {
-            return toolChain
-        }
-    }
-    return null
-}
 
 pipeline {
     agent {
-        label "ubuntu:18.04 && thirdparty"
+        label "linux-8"
     }
     options {
         skipDefaultCheckout()
     }
     parameters {
-        string(name: 'PROTOBUF_UE4_VERSION', defaultValue: '3.9.2')
+        string(name: 'PROTOBUF_UE4_VERSION', defaultValue: '3.19.4')
         string(name: 'MYCFLAGS', defaultValue: '')
         string(name: 'MYLDFLAGS', defaultValue: '')
         string(name: 'ENGINE_BRANCH', defaultValue: 'release')
@@ -49,6 +27,10 @@ pipeline {
         PROTOBUF_UE4_VERSION             = "${params.PROTOBUF_UE4_VERSION}"
         PROTOBUF_UE4_PREFIX              = "${env.HOME}/thirdparty/protobuf-ue4/${params.PROTOBUF_UE4_VERSION}/linux"
         PROTOBUF_UE4_ZIP                 = "protobuf-ue4-${params.PROTOBUF_UE4_VERSION}-linux.zip"
+        UE4_CLANG_VERSION                = "v20_clang-13.0.1-centos7"
+        UE4_ZLIB_VERSION                 = "v1.2.8"
+        ENGINE_LOCAL_DIR                 = 'UnrealEngine'
+        ENGINE_SYS                       = 'Linux'        
     }
     stages {
         stage('Cleanup') {
@@ -61,9 +43,9 @@ pipeline {
             }
         }
 
-        stage('Download') {
+        stage('Checkout Out') {
             steps {
-                git gitRepo
+                checkout scm
             }
         }
 
@@ -72,21 +54,10 @@ pipeline {
                 script {
                     def ue4CleanBuild = !fileExists(ENGINE_LOCAL_DIR)
                     if (ue4CleanBuild) {
-                        buildEngine.ue4Checkout(ENGINE_LOCAL_DIR, ENGINE_SYS, params.ENGINE_BRANCH)
+                        ueBuild.ueCheckout(ENGINE_LOCAL_DIR, ENGINE_SYS, params.ENGINE_BRANCH)
                         dir(ENGINE_LOCAL_DIR) {
-                            buildEngine.ue4Setup(ENGINE_SYS, '')
+                            buildEngine.ueSetup(ENGINE_SYS, '')
                         }
-                    }
-
-                    dir(ENGINE_LOCAL_DIR) {
-                        def engineVersion = buildEngine.getEngineVersion()
-                        echo "Engine version : ${engineVersion}"
-                        def engineToolChain = getToolChain(engineVersion)
-                        if (engineToolChain == null) {
-                            error "Not supported for this engine version : ${engineVersion}"
-                        }
-                        env.UE4_CLANG_VERSION = engineToolChain.UE4_CLANG_VERSION
-                        env.UE4_ZLIB_VERSION = engineToolChain.UE4_ZLIB_VERSION
                     }
                 }
             }
@@ -94,9 +65,11 @@ pipeline {
         
         stage('Build') {
             steps {
-                withCMake('3.12.2') {
-                    sh 'rm -rf *.zip'
-                    sh './Build_Linux.sh'
+                dir('protobuf-ue4/linux') {
+                    withCMake('3.12.2') {
+                        sh 'rm -rf *.zip'
+                        sh './Build_Linux.sh'
+                    }
                 }
             }
         }
