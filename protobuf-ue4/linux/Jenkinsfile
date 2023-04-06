@@ -2,7 +2,7 @@
 
 import com.kingsoft.shiyou.UnrealEngineBuild
 
-ueBuild = new UnrealEngineBuild(this)
+ueBuild = new UnrealEngineBuild(this, 'https://s3.shiyou.kingsoft.com')
 
 
 pipeline {
@@ -60,7 +60,8 @@ pipeline {
                                 branches: [[name: params.ENGINE_BRANCH]],
                                 extensions: [[$class: 'CloneOption', timeout: 120], [$class: 'AuthorInChangelog']],
                                 userRemoteConfigs: [[ url: 'https://github-mirror.shiyou.kingsoft.com/ffas-ue/UnrealEngine.git']]
-                            ], poll: false, changelog: true)                            
+                            ], poll: false, changelog: true)
+                                                        
                             ueBuild.ueSetup(ENGINE_SYS, '')
                         }
                     }
