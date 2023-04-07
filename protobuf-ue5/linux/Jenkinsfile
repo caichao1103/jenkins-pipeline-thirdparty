@@ -7,13 +7,13 @@ ueBuild = new UnrealEngineBuild(this, 'https://s3.shiyou.kingsoft.com')
 
 pipeline {
     agent {
-        label "linux-8"
+        label "os:linux && thirdparty"
     }
     options {
         skipDefaultCheckout()
     }
     parameters {
-        string(name: 'PROTOBUF_UE4_VERSION', defaultValue: '3.19.4')
+        string(name: 'PROTOBUF_UE5_VERSION', defaultValue: '3.19.4')
         string(name: 'MYCFLAGS', defaultValue: '')
         string(name: 'MYLDFLAGS', defaultValue: '')
         string(name: 'ENGINE_BRANCH', defaultValue: 'release')
@@ -22,13 +22,13 @@ pipeline {
             description: 'When checked, call function cleanWs.')
     }
     environment {
-        PROTOBUF_UE4_WORKSPACE           = "${env.WORKSPACE}"
-        UE4_ROOT                         = "${env.WORKSPACE}/UnrealEngine"
-        PROTOBUF_UE4_VERSION             = "${params.PROTOBUF_UE4_VERSION}"
-        PROTOBUF_UE4_PREFIX              = "${env.HOME}/thirdparty/protobuf-ue4/${params.PROTOBUF_UE4_VERSION}/linux"
-        PROTOBUF_UE4_ZIP                 = "protobuf-ue4-${params.PROTOBUF_UE4_VERSION}-linux.zip"
-        UE4_CLANG_VERSION                = "v20_clang-13.0.1-centos7"
-        UE4_ZLIB_VERSION                 = "v1.2.8"
+        PROTOBUF_UE5_WORKSPACE           = "${env.WORKSPACE}"
+        UE5_ROOT                         = "${env.WORKSPACE}/UnrealEngine"
+        PROTOBUF_UE5_VERSION             = "${params.PROTOBUF_UE5_VERSION}"
+        PROTOBUF_UE5_PREFIX              = "${env.HOME}/thirdparty/protobuf-UE5/${params.PROTOBUF_UE5_VERSION}/linux"
+        PROTOBUF_UE5_ZIP                 = "protobuf-UE5-${params.PROTOBUF_UE5_VERSION}-linux.zip"
+        UE5_CLANG_VERSION                = "v20_clang-13.0.1-centos7"
+        UE5_ZLIB_VERSION                 = "v1.2.8"
         ENGINE_LOCAL_DIR                 = 'UnrealEngine'
         ENGINE_SYS                       = 'Linux'        
     }
@@ -52,8 +52,8 @@ pipeline {
         stage('Git Engine') {
             steps {
                 script {
-                    def ue4CleanBuild = !fileExists(ENGINE_LOCAL_DIR)
-                    if (ue4CleanBuild) {
+                    def ue5CleanBuild = !fileExists(ENGINE_LOCAL_DIR)
+                    if (ue5CleanBuild) {
                         dir(ENGINE_LOCAL_DIR) {
                             checkout(scm: [
                                 $class: 'GitSCM',
@@ -71,7 +71,7 @@ pipeline {
         
         stage('Build') {
             steps {
-                dir('protobuf-ue4/linux') {
+                dir('protobuf-ue5/linux') {
                     withCMake('3.12.2') {
                         sh 'rm -rf *.zip'
                         sh './Build_Linux.sh'
@@ -82,13 +82,13 @@ pipeline {
 
         stage('Archive') {
             steps {
-                zip archive: true, dir: env.PROTOBUF_UE4_PREFIX, zipFile: env.PROTOBUF_UE4_ZIP
+                zip archive: true, dir: env.PROTOBUF_UE5_PREFIX, zipFile: env.PROTOBUF_UE5_ZIP
             }
         }
     }
     post {
         failure {
-            archiveArtifacts artifacts: "protobuf-ue4/linux/protobuf-${params.PROTOBUF_UE4_VERSION}/config.log", allowEmptyArchive: true
+            archiveArtifacts artifacts: "protobuf-ue5/linux/protobuf-${params.PROTOBUF_UE5_VERSION}/config.log", allowEmptyArchive: true
         }
     }
 }
