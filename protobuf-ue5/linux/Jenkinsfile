@@ -4,6 +4,7 @@ import com.kingsoft.shiyou.UnrealEngineBuild
 
 ueBuild = new UnrealEngineBuild(this, 'https://s3.shiyou.kingsoft.com')
 
+SAFE_BRANCH_NAME = env.BRANCH_NAME ?: 'main'
 
 pipeline {
     agent {
@@ -45,7 +46,12 @@ pipeline {
 
         stage('Checkout Out') {
             steps {
-                checkout scm
+                checkout(scm: [
+                    $class: 'GitSCM',
+                    branches: [[name: SAFE_BRANCH_NAME]],
+                    extensions: [[$class: 'CloneOption', shallow: true, depth: 1], [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'protobuf-ue5']]]],
+                    userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/caichao1103/jenkins-pipeline-thirdparty.git']]
+                ], changelog: false, poll: false)                
             }
         }
 
