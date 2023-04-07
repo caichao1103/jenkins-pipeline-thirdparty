@@ -4,7 +4,7 @@ import com.kingsoft.shiyou.UnrealEngineBuild
 
 ueBuild = new UnrealEngineBuild(this, 'https://s3.shiyou.kingsoft.com')
 
-SAFE_BRANCH_NAME = env.BRANCH_NAME ?: 'main'
+SAFE_BRANCH_NAME = env.BRANCH_NAME ?: 'master'
 
 pipeline {
     agent {
